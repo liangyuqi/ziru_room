@@ -38,6 +38,11 @@ chmod a+x ziru_room.py
 
 python ziru_room.py
 
+
+# Other
+
+由于自如页面经常改版，所以本次爬取页面结构参考template.html,后续可根据最新代码结构自行修改爬取逻辑
+
 ** please star it , thx ** 
 
 ** liangyuqi@megvii.com ** 

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+#coding=utf-8
 
 import requests
 import time
@@ -10,7 +9,7 @@ import process
 import pdb
 reload(sys)
 sys.setdefaultencoding('utf-8')
-
+# print sys.getdefaultencoding()
 '''
 初始化函数
 '''
@@ -109,18 +108,17 @@ def computedData(usefulIp, headers):
     # Get请求-并传递headers
     try:
         data = requests.get("http://www.ziroom.com/z/nl/z3-r3-o2-s5%E5%8F%B7%E7%BA%BF-t%E5%8C%97%E8%8B%91%E8%B7%AF%E5%8C%97.html",
-                        headers=headers, proxies={'http': random.choice(usefulIp)})
+                        headers=headers, proxies={'http': random.choice(usefulIp)},timeout=(3,7))
         pass
-    except expression as identifier:
+    except:
         print "Error: 请求失败"
         pass
     else:
         roomDate = bs4.BeautifulSoup(data.text, "html.parser")
         # 标题
         title = roomDate.select("#houseList > li > div.txt > h3 > a")
-        # print title
-        # 地点
-        place = roomDate.select("#houseList > li > div.txt > h4 > a")
+        # 地点 改版没了////
+        # place = roomDate.select("#houseList > li > div.txt > h4 > a")
         # 距离
         distance = roomDate.select(
             "#houseList > li > div.txt > div > p:nth-of-type(2) > span")
@@ -140,10 +138,10 @@ def computedData(usefulIp, headers):
         fhandle.write('北京市'+time.strftime("%Y-%m-%d %H:%M:%S",
                                         time.localtime()) + '自如数据如下'+'\n')
 
-        for title, price, place, area, floor, room, distance in zip(title, price, place, area, floor, room, distance):
+        for title, price, area, floor, room, distance in zip(title, price, area, floor, room, distance):
             last_data = {
                 "名称": title.get_text().strip(),
-                "地段": place.get_text().strip(),
+                # "地段": place.get_text().strip(),
                 "距离": distance.get_text().strip(),
                 "价格": price.get_text().replace(' ', '').replace('\n', ''),
                 "面积": area.get_text().strip(),
@@ -152,7 +150,7 @@ def computedData(usefulIp, headers):
             }
 
             fhandle.write("名称："+title.get_text().strip())
-            fhandle.write("地段："+place.get_text().strip())
+            # fhandle.write("地段："+place.get_text().strip())
             fhandle.write("距离："+distance.get_text().strip())
             fhandle.write(
                 "价格："+price.get_text().replace(' ', '').replace('\n', ''))
