@@ -1,6 +1,8 @@
 # ziru_room
 use python to catch the information from ziru
 
+git clone git@github.com:liangyuqi/ziru_room.git
+
 ![](http://photo.lustforlife.cn/50.png)
 
 
