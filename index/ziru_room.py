@@ -1,5 +1,5 @@
-#coding=utf-8
-
+# coding=UTF-8
+import json
 import requests
 import time
 import bs4
@@ -8,8 +8,8 @@ import sys
 import process
 import pdb
 reload(sys)
-sys.setdefaultencoding('utf-8')
-# print sys.getdefaultencoding()
+sys.setdefaultencoding('UTF-8')
+
 '''
 初始化函数
 '''
@@ -17,9 +17,10 @@ sys.setdefaultencoding('utf-8')
 
 def init():
     # 请求头
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
-    }
+    userAgent = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
+                 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0',
+                 'Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10'
+                 ]
 
     # 经测试可用ip
     usefulIp = []
@@ -30,11 +31,11 @@ def init():
     # 检测ip是否可用地址
     testGetIp = 'http://icanhazip.com/'
 
-    usefulIp = getUsefulIPList(uriGetIp, testGetIp, headers)
+    usefulIp = getUsefulIPList(uriGetIp, testGetIp, userAgent)
 
-    # while(True):
-    computedData(usefulIp, headers)
-
+    while(True):
+        computedData(usefulIp, userAgent)
+        time.sleep(60)
 
 
 '''
@@ -42,13 +43,14 @@ def init():
 '''
 
 
-def getUsefulIPList(uriGetIp, testGetIp, headers):
+def getUsefulIPList(uriGetIp, testGetIp, userAgent):
     # 全部代理ip
     allProxys = []
 
     # 经测试可用ip
     usefulIp = []
-    ipList = requests.get(uriGetIp, headers=headers)
+    ipList = requests.get(
+        uriGetIp, headers={'User-Agent': random.choice(userAgent)})
 
     ipData = bs4.BeautifulSoup(ipList.text, "html.parser")
 
@@ -73,7 +75,7 @@ def getUsefulIPList(uriGetIp, testGetIp, headers):
         process.process_bar.show_process()
         # time.sleep(0.05)
         try:
-            theIp = requests.get(testGetIp, headers=headers, proxies={
+            theIp = requests.get(testGetIp,  headers={'User-Agent': random.choice(userAgent)}, proxies={
                 'http': proxy}, timeout=1, allow_redirects=False)
         except requests.exceptions.Timeout:
             # print('超过1s')
@@ -101,17 +103,21 @@ def getUsefulIPList(uriGetIp, testGetIp, headers):
 '''
 
 
-def computedData(usefulIp, headers):
+def computedData(usefulIp, userAgent, ipIndex=0):
+    # debugger
     # pdb.set_trace()
     fhandle = open('../output/output.txt', 'a')  # 追加写入文件
 
     # Get请求-并传递headers
     try:
         data = requests.get("http://www.ziroom.com/z/nl/z3-r3-o2-s5%E5%8F%B7%E7%BA%BF-t%E5%8C%97%E8%8B%91%E8%B7%AF%E5%8C%97.html",
-                        headers=headers, proxies={'http': random.choice(usefulIp)},timeout=(3,7))
+                            headers={'User-Agent': random.choice(userAgent)}, proxies={'http': random.choice(usefulIp)}, timeout=(3, 7))
+        #
         pass
     except:
         print "Error: 请求失败"
+        computedData(usefulIp, userAgent)
+        return
         pass
     else:
         roomDate = bs4.BeautifulSoup(data.text, "html.parser")
@@ -136,7 +142,7 @@ def computedData(usefulIp, headers):
         #
         print('北京市自如数据如下')
         fhandle.write('北京市'+time.strftime("%Y-%m-%d %H:%M:%S",
-                                        time.localtime()) + '自如数据如下'+'\n')
+                                          time.localtime()) + '自如数据如下'+'\n')
 
         for title, price, area, floor, room, distance in zip(title, price, area, floor, room, distance):
             last_data = {
@@ -158,16 +164,21 @@ def computedData(usefulIp, headers):
             fhandle.write("楼层："+floor.get_text().strip())
             fhandle.write("房间大小："+room.get_text().strip() + '\n')
 
-            print(last_data)
+            # print  json.dumps(last_data).decode('unicode-escape')
+            # print  json.dumps(last_data,ensure_ascii=False)
+            print json.dumps(last_data, encoding='UTF-8', ensure_ascii=False)
 
         fhandle.write("************************************************"+'\n')
         fhandle.close()
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         pass
-        # time.sleep(60)
 
 
 '''
 入口函数
 '''
-init()
+if __name__ == "__main__":
+    init()
+    pass
+
+
